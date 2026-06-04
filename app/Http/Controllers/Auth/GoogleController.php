@@ -64,7 +64,7 @@ class GoogleController extends Controller
             'email' => $googleUser->getEmail(),
             'google_id' => $googleUser->getId(),
             'avatar_url' => $googleUser->getAvatar(),
-            'password' => bcrypt(\Illuminate\Support\Str::random(24)),
+            'password' => null,
             'email_verified_at' => now(), // Google sudah verifikasi email
         ]);
 
