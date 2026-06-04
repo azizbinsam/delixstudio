@@ -82,33 +82,45 @@ Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\GoogleController
     ->name('auth.google.callback');
 
 Route::get('/sitemap.xml', function () {
-    $sitemap = Spatie\Sitemap\Sitemap::create()
-        ->add(Spatie\Sitemap\Tags\Url::create('/')->setPriority(1.0)->setChangeFrequency('daily'))
-        ->add(Spatie\Sitemap\Tags\Url::create('/courses')->setPriority(0.9)->setChangeFrequency('daily'))
-        ->add(Spatie\Sitemap\Tags\Url::create('/products')->setPriority(0.9)->setChangeFrequency('daily'))
-        ->add(Spatie\Sitemap\Tags\Url::create('/about')->setPriority(0.5))
-        ->add(Spatie\Sitemap\Tags\Url::create('/contact')->setPriority(0.5));
+    $courses = App\Models\Course::where('status', 'published')->get();
+    $products = App\Models\Product::where('status', 'published')->get();
 
-    Course::all()->each(function ($course) use ($sitemap) {
-        $sitemap->add(
-            Spatie\Sitemap\Tags\Url::create("/courses/{$course->slug}")
-                ->setPriority(0.8)
-                ->setChangeFrequency('weekly')
-                ->setLastModificationDate($course->updated_at)
-        );
-    });
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>';
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
 
-    Product::all()->each(function ($product) use ($sitemap) {
-        $sitemap->add(
-            Spatie\Sitemap\Tags\Url::create("/products/{$product->slug}")
-                ->setPriority(0.8)
-                ->setChangeFrequency('weekly')
-                ->setLastModificationDate($product->updated_at)
-        );
-    });
+    // Static pages
+    $staticPages = ['/', '/courses', '/products', '/about', '/contact', '/privacy-policy', '/terms'];
+    foreach ($staticPages as $page) {
+        $xml .= '<url>';
+        $xml .= '<loc>' . url($page) . '</loc>';
+        $xml .= '<changefreq>weekly</changefreq>';
+        $xml .= '<priority>0.8</priority>';
+        $xml .= '</url>';
+    }
 
-    return response($sitemap->render(), 200)
-        ->header('Content-Type', 'application/xml');
+    // Courses
+    foreach ($courses as $course) {
+        $xml .= '<url>';
+        $xml .= '<loc>' . url("/courses/{$course->slug}") . '</loc>';
+        $xml .= '<lastmod>' . $course->updated_at->toAtomString() . '</lastmod>';
+        $xml .= '<changefreq>weekly</changefreq>';
+        $xml .= '<priority>0.8</priority>';
+        $xml .= '</url>';
+    }
+
+    // Products
+    foreach ($products as $product) {
+        $xml .= '<url>';
+        $xml .= '<loc>' . url("/products/{$product->slug}") . '</loc>';
+        $xml .= '<lastmod>' . $product->updated_at->toAtomString() . '</lastmod>';
+        $xml .= '<changefreq>weekly</changefreq>';
+        $xml .= '<priority>0.8</priority>';
+        $xml .= '</url>';
+    }
+
+    $xml .= '</urlset>';
+
+    return response($xml, 200)->header('Content-Type', 'application/xml');
 });
 
 /*
