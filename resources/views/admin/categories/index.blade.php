@@ -36,21 +36,31 @@
         <x-modal show="showEdit" title="Edit Kategori">
             <form :action="`/admin/categories/${editData.id}`" method="POST" class="space-y-3">
                 @csrf @method('PUT')
+
                 <div class="space-y-1.5">
                     <label class="label">Nama Kategori</label>
                     <input type="text" name="name" :value="editData.name" class="input" required>
                 </div>
+
                 <div class="space-y-1.5">
                     <label class="label">Tipe</label>
-                    <select name="type" class="input">
-                        <option value="course" :selected="editData.type === 'course'">Kelas</option>
-                        <option value="product" :selected="editData.type === 'product'">Produk</option>
-                    </select>
+                    <div class="relative">
+                        <select name="type" class="select" x-model="editData.type">
+                            <option value="course">Kelas</option>
+                            <option value="product">Produk</option>
+                        </select>
+                        <i
+                            class="fas fa-chevron-down pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/30"></i>
+                    </div>
                 </div>
+
                 <div class="space-y-1.5">
                     <label class="label">Icon</label>
-                    <input type="text" name="icon" :value="editData.icon" class="input" placeholder="fas fa-tag">
+                    <div class="relative">
+                        <input type="text" name="icon" :value="editData.icon" class="input" placeholder="fas fa-tag">
+                    </div>
                 </div>
+
                 <div class="flex gap-2 pt-2">
                     <x-btn variant="outline" class="flex-1" @click="showEdit = false">Batal</x-btn>
                     <x-btn type="submit" class="flex-1">Simpan</x-btn>
