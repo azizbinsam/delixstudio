@@ -12,6 +12,7 @@ class HomeController extends Controller
 {
     public function index()
     {
+        SEOMeta::addMeta('google-site-verification', 'Hsr3YDqt2fSEb53JIriphsay1TcAo2zsLVQ4B8iC-gk');
         SEOMeta::setTitle('Delix Studio - Platform E-Learning & E-Commerce WordPress');
         SEOMeta::setDescription('Belajar dari kelas premium dan dapatkan tema & plugin WordPress terbaik. Semua dalam satu platform untuk developer Indonesia.');
         SEOMeta::setCanonical(url('/'));
