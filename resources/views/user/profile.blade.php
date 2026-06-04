@@ -20,7 +20,7 @@
                         @csrf @method('PUT')
 
                         {{-- Avatar --}}
-                        <div x-data="{ preview: @js($user->avatar ? Storage::url($user->avatar) : null) }">
+                        <div x-data="{ preview: @js($user->avatar ? Storage::url($user->avatar) : ($user->avatar_url ?: null)) }">
                             <label class="label">Foto Profile</label>
 
                             <div class="flex items-center gap-4">
