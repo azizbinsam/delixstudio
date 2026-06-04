@@ -59,31 +59,6 @@ Route::get('/auth/google', [\App\Http\Controllers\Auth\GoogleController::class, 
 Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\GoogleController::class, 'callback'])
     ->name('auth.google.callback');
 
-Route::get('/test-404', fn() => abort(404));
-Route::get('/test-403', fn() => abort(403));
-Route::get('/test-500', fn() => abort(500));
-Route::get('/test-503', fn() => abort(503));
-Route::get('/test-419', fn() => abort(419));
-Route::get('/test-429', fn() => abort(429));
-
-Route::get('/preview/email/pending-email-verification', function () {
-    $user = \App\Models\User::first();
-    $user->pending_email = 'newemail@example.com';
-    return view('emails.pending-email-verification', [
-        'user' => $user,
-        'verificationUrl' => 'https://example.com/verify/token123',
-    ]);
-});
-
-Route::get('/preview/email/email-changed-notification', function () {
-    $user = \App\Models\User::first();
-    return view('emails.email-changed-notification', [
-        'user' => $user,
-        'oldEmail' => 'oldemail@example.com',
-        'newEmail' => 'newemail@example.com',
-    ]);
-});
-
 /*
 |--------------------------------------------------------------------------
 | Auth Routes (Login, Register, dll - dari Breeze)
