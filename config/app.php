@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Support\Facades\Facade;
 
 return [
 
@@ -117,6 +118,14 @@ return [
     | Supported drivers: "file", "cache"
     |
     */
+
+    'aliases' => Facade::defaultAliases()->merge([
+        'SEOMeta'     => Artesaos\SEOTools\Facades\SEOMeta::class,
+        'OpenGraph'   => Artesaos\SEOTools\Facades\OpenGraph::class,
+        'TwitterCard' => Artesaos\SEOTools\Facades\TwitterCard::class,
+        'JsonLd'      => Artesaos\SEOTools\Facades\JsonLd::class,
+        'SEOTools'    => Artesaos\SEOTools\Facades\SEOTools::class,
+    ])->toArray(),
 
     'maintenance' => [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
