@@ -6,11 +6,21 @@ use App\Models\Category;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Artesaos\SEOTools\Facades\SEOMeta;
+use Artesaos\SEOTools\Facades\OpenGraph;
 
 class CourseController extends Controller
 {
     public function index(Request $request)
     {
+        SEOMeta::setTitle('Semua Course - Delix Studio');
+        SEOMeta::setDescription('Jelajahi semua course premium di Delix Studio. Belajar programming, design, dan lainnya.');
+        SEOMeta::setCanonical(url('/courses'));
+
+        OpenGraph::setTitle('Semua Course - Delix Studio');
+        OpenGraph::setDescription('Jelajahi semua course premium di Delix Studio.');
+        OpenGraph::setUrl(url('/courses'));
+
         $courses = Course::where('status', 'published')
             ->with('category')
             ->when(request('category'), fn($q) => $q->whereHas('category', fn($q) => $q->where('slug', request('category'))))
@@ -92,6 +102,22 @@ class CourseController extends Controller
             ->where('status', 'published')
             ->with(['category', 'tools', 'sections.chapters'])
             ->firstOrFail();
+
+        SEOMeta::setTitle($course->title . ' - Delix Studio');
+        SEOMeta::setDescription($course->description);
+        SEOMeta::setCanonical(url("/courses/{$slug}"));
+        SEOMeta::addKeyword([
+            $course->title,
+            'course ' . $course->level,
+            $course->category->name ?? 'course',
+            'delix studio'
+        ]);
+
+        OpenGraph::setTitle($course->title);
+        OpenGraph::setDescription($course->description);
+        OpenGraph::setUrl(url("/courses/{$slug}"));
+        OpenGraph::setType('article');
+        OpenGraph::addImage(asset('storage/' . $course->thumbnail));
 
         $hasPurchased = false;
 

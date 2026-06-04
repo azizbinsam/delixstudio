@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Course;
 use App\Models\Product;
+use Artesaos\SEOTools\Facades\SEOMeta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 

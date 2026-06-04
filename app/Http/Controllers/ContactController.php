@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Artesaos\SEOTools\Facades\OpenGraph;
+use Artesaos\SEOTools\Facades\SEOMeta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -9,6 +11,14 @@ class ContactController extends Controller
 {
     public function index()
     {
+        SEOMeta::setTitle('Hubungi Kami - Delix Studio');
+        SEOMeta::setDescription('Ada pertanyaan atau butuh bantuan? Hubungi tim Delix Studio, kami siap membantu.');
+        SEOMeta::setCanonical(url('/contact'));
+
+        OpenGraph::setTitle('Hubungi Kami - Delix Studio');
+        OpenGraph::setDescription('Ada pertanyaan atau butuh bantuan? Hubungi tim Delix Studio.');
+        OpenGraph::setUrl(url('/contact'));
+
         return view('pages.contact');
     }
 

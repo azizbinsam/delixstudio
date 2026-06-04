@@ -20,7 +20,13 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\User\DashboardController as UserDashboardController;
 use App\Http\Controllers\User\ProfileController;
+use App\Models\Course;
+use App\Models\Product;
+use Artesaos\SEOTools\Facades\OpenGraph;
+use Artesaos\SEOTools\Facades\SEOMeta;
 use Illuminate\Support\Facades\Route;
+use Spatie\Sitemap\Sitemap;
+use Spatie\Sitemap\Tags\Url;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,17 +53,64 @@ Route::get('/courses/{slug}/learn/{chapterId}', [CourseController::class, 'learn
     ->name('courses.learn');
 
 // Info
-Route::get('/about', fn() => view('pages.about'))->name('about');
+Route::get('/about', function () {
+    SEOMeta::setTitle('Tentang Kami - Delix Studio');
+    SEOMeta::setDescription('Kenali lebih dekat Delix Studio, platform template dan course digital terbaik.');
+    SEOMeta::setCanonical(url('/about'));
+    OpenGraph::setUrl(url('/about'));
+    return view('pages.about');
+})->name('about');
 Route::get('/contact', [App\Http\Controllers\ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
-Route::get('/privacy-policy', fn() => view('pages.privacy-policy'))->name('privacy');
-Route::get('/terms', fn() => view('pages.terms'))->name('terms');
+Route::get('/privacy-policy', function () {
+    SEOMeta::setTitle('Kebijakan Privasi - Delix Studio');
+    SEOMeta::setDescription('Baca kebijakan privasi Delix Studio untuk memahami bagaimana kami melindungi data kamu.');
+    SEOMeta::setCanonical(url('/privacy-policy'));
+    return view('pages.privacy-policy');
+})->name('privacy');
+Route::get('/terms', function () {
+    SEOMeta::setTitle('Syarat & Ketentuan - Delix Studio');
+    SEOMeta::setDescription('Baca syarat dan ketentuan penggunaan layanan Delix Studio.');
+    SEOMeta::setCanonical(url('/terms'));
+    return view('pages.terms');
+})->name('terms');
 
 // Google OAuth
 Route::get('/auth/google', [\App\Http\Controllers\Auth\GoogleController::class, 'redirect'])
     ->name('auth.google');
 Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\GoogleController::class, 'callback'])
     ->name('auth.google.callback');
+
+Route::get('/sitemap.xml', function () {
+    $sitemap = Sitemap::create()
+        ->add(Url::create('/')->setPriority(1.0)->setChangeFrequency('daily'))
+        ->add(Url::create('/courses')->setPriority(0.9)->setChangeFrequency('daily'))
+        ->add(Url::create('/products')->setPriority(0.9)->setChangeFrequency('daily'))
+        ->add(Url::create('/about')->setPriority(0.5))
+        ->add(Url::create('/contact')->setPriority(0.5));
+
+    // Tambah semua course
+    Course::all()->each(function (Course $course) use ($sitemap) {
+        $sitemap->add(
+            Url::create("/courses/{$course->slug}")
+                ->setPriority(0.8)
+                ->setChangeFrequency('weekly')
+                ->setLastModificationDate($course->updated_at)
+        );
+    });
+
+    // Tambah semua product
+    Product::all()->each(function (Product $product) use ($sitemap) {
+        $sitemap->add(
+            Url::create("/products/{$product->slug}")
+                ->setPriority(0.8)
+                ->setChangeFrequency('weekly')
+                ->setLastModificationDate($product->updated_at)
+        );
+    });
+
+    return $sitemap->toResponse(request());
+});
 
 /*
 |--------------------------------------------------------------------------
