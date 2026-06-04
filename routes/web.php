@@ -82,34 +82,33 @@ Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\GoogleController
     ->name('auth.google.callback');
 
 Route::get('/sitemap.xml', function () {
-    $sitemap = Sitemap::create()
-        ->add(Url::create('/')->setPriority(1.0)->setChangeFrequency('daily'))
-        ->add(Url::create('/courses')->setPriority(0.9)->setChangeFrequency('daily'))
-        ->add(Url::create('/products')->setPriority(0.9)->setChangeFrequency('daily'))
-        ->add(Url::create('/about')->setPriority(0.5))
-        ->add(Url::create('/contact')->setPriority(0.5));
+    $sitemap = Spatie\Sitemap\Sitemap::create()
+        ->add(Spatie\Sitemap\Tags\Url::create('/')->setPriority(1.0)->setChangeFrequency('daily'))
+        ->add(Spatie\Sitemap\Tags\Url::create('/courses')->setPriority(0.9)->setChangeFrequency('daily'))
+        ->add(Spatie\Sitemap\Tags\Url::create('/products')->setPriority(0.9)->setChangeFrequency('daily'))
+        ->add(Spatie\Sitemap\Tags\Url::create('/about')->setPriority(0.5))
+        ->add(Spatie\Sitemap\Tags\Url::create('/contact')->setPriority(0.5));
 
-    // Tambah semua course
-    Course::all()->each(function (Course $course) use ($sitemap) {
+    Course::all()->each(function ($course) use ($sitemap) {
         $sitemap->add(
-            Url::create("/courses/{$course->slug}")
+            Spatie\Sitemap\Tags\Url::create("/courses/{$course->slug}")
                 ->setPriority(0.8)
                 ->setChangeFrequency('weekly')
                 ->setLastModificationDate($course->updated_at)
         );
     });
 
-    // Tambah semua product
-    Product::all()->each(function (Product $product) use ($sitemap) {
+    Product::all()->each(function ($product) use ($sitemap) {
         $sitemap->add(
-            Url::create("/products/{$product->slug}")
+            Spatie\Sitemap\Tags\Url::create("/products/{$product->slug}")
                 ->setPriority(0.8)
                 ->setChangeFrequency('weekly')
                 ->setLastModificationDate($product->updated_at)
         );
     });
 
-    return $sitemap->toResponse(request());
+    return response($sitemap->render(), 200)
+        ->header('Content-Type', 'application/xml');
 });
 
 /*
