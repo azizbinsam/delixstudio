@@ -1,0 +1,207 @@
+<?php
+
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ChapterController;
+use App\Http\Controllers\Admin\CourseManagerController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\OrderManagerController;
+use App\Http\Controllers\Admin\PaymentSettingController;
+use App\Http\Controllers\Admin\ProductManagerController;
+use App\Http\Controllers\Admin\PromoCodeController;
+use App\Http\Controllers\Admin\SectionController;
+use App\Http\Controllers\Admin\UserManagerController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\User\DashboardController as UserDashboardController;
+use App\Http\Controllers\User\ProfileController;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Courses
+Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
+Route::get('/courses/{slug}', [CourseController::class, 'show'])->name('courses.show');
+
+// Products
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
+
+// Search
+Route::get('/search', SearchController::class)->name('search');
+
+// Chapter Player
+Route::get('/courses/{slug}/learn/{chapterId}', [CourseController::class, 'learn'])
+    ->middleware('auth')
+    ->name('courses.learn');
+
+// Info
+Route::get('/about', fn() => view('pages.about'))->name('about');
+Route::get('/contact', [App\Http\Controllers\ContactController::class, 'index'])->name('contact');
+Route::post('/contact', [App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
+Route::get('/privacy-policy', fn() => view('pages.privacy-policy'))->name('privacy');
+Route::get('/terms', fn() => view('pages.terms'))->name('terms');
+
+// Google OAuth
+Route::get('/auth/google', [\App\Http\Controllers\Auth\GoogleController::class, 'redirect'])
+    ->name('auth.google');
+Route::get('/auth/google/callback', [\App\Http\Controllers\Auth\GoogleController::class, 'callback'])
+    ->name('auth.google.callback');
+
+Route::get('/test-404', fn() => abort(404));
+Route::get('/test-403', fn() => abort(403));
+Route::get('/test-500', fn() => abort(500));
+Route::get('/test-503', fn() => abort(503));
+Route::get('/test-419', fn() => abort(419));
+Route::get('/test-429', fn() => abort(429));
+
+Route::get('/preview/email/pending-email-verification', function () {
+    $user = \App\Models\User::first();
+    $user->pending_email = 'newemail@example.com';
+    return view('emails.pending-email-verification', [
+        'user' => $user,
+        'verificationUrl' => 'https://example.com/verify/token123',
+    ]);
+});
+
+Route::get('/preview/email/email-changed-notification', function () {
+    $user = \App\Models\User::first();
+    return view('emails.email-changed-notification', [
+        'user' => $user,
+        'oldEmail' => 'oldemail@example.com',
+        'newEmail' => 'newemail@example.com',
+    ]);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Auth Routes (Login, Register, dll - dari Breeze)
+|--------------------------------------------------------------------------
+*/
+require __DIR__ . '/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| User Routes (harus login)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->prefix('user')->name('user.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
+    // Email change
+    Route::get('/profile/email/verify/{token}', [ProfileController::class, 'verifyPendingEmail'])
+        ->name('profile.email.verify')
+        ->withoutMiddleware(['auth', 'verified']); // bisa diakses tanpa login (buka dari email client)
+
+    Route::post('/profile/email/cancel', [ProfileController::class, 'cancelPendingEmail'])
+        ->name('profile.email.cancel');
+
+    // Orders
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{invoice}', [OrderController::class, 'show'])->name('orders.show');
+
+    // Checkout (Cart — untuk Produk)
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/checkout/success/{invoice}', [CheckoutController::class, 'success'])->name('checkout.success');
+
+    // Checkout Langsung (untuk Kelas)
+    Route::get('/checkout/course/{course}', [CheckoutController::class, 'courseCheckout'])->name('checkout.course');
+    Route::post('/checkout/course/{course}', [CheckoutController::class, 'processCourse'])->name('checkout.course.process');
+    Route::post('/checkout/course/{course}/promo', [CheckoutController::class, 'applyCoursePromo'])->name('checkout.course.promo');
+    Route::delete('/checkout/course/{course}/promo', [CheckoutController::class, 'removeCoursePromo'])->name('checkout.course.promo.remove');
+
+    // Payment Confirmation (Manual Transfer)
+    Route::get('/payment/confirm/{invoice}', [OrderController::class, 'confirmPayment'])->name('payment.confirm');
+    Route::post('/payment/confirm/{invoice}', [OrderController::class, 'submitConfirmation'])->name('payment.submit');
+
+    // Midtrans Callback
+    Route::post('/payment/midtrans/callback', [OrderController::class, 'midtransCallback'])->name('payment.midtrans.callback');
+
+    // Download Product File
+    Route::get('/download/{orderItemId}', [OrderController::class, 'download'])->name('download');
+
+    // Cart
+    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+    Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::post('/cart/promo', [CartController::class, 'applyPromo'])->name('cart.promo');
+
+    // Progress tracking
+    Route::post('/courses/{slug}/progress/{chapterId}', [CourseController::class, 'markProgress'])
+        ->name('courses.progress');
+
+    // Hapus promo
+    Route::delete('/cart/promo', [CartController::class, 'removePromo'])->name('cart.promo.remove');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Admin Routes (harus login & admin)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // Categories
+    Route::resource('categories', CategoryController::class);
+
+    // Courses
+    Route::resource('courses', CourseManagerController::class);
+
+    // Sections
+    Route::post('courses/{course}/sections', [SectionController::class, 'store'])->name('sections.store');
+    Route::put('sections/{section}', [SectionController::class, 'update'])->name('sections.update');
+    Route::delete('sections/{section}', [SectionController::class, 'destroy'])->name('sections.destroy');
+
+    // Chapters
+    Route::post('sections/{section}/chapters', [ChapterController::class, 'store'])->name('chapters.store');
+    Route::put('chapters/{chapter}', [ChapterController::class, 'update'])->name('chapters.update');
+    Route::delete('chapters/{chapter}', [ChapterController::class, 'destroy'])->name('chapters.destroy');
+
+    // Products
+    Route::resource('products', ProductManagerController::class);
+
+    // Orders
+    Route::get('/orders', [OrderManagerController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{invoice}', [OrderManagerController::class, 'show'])->name('orders.show');
+    Route::put('/orders/{invoice}/status', [OrderManagerController::class, 'updateStatus'])->name('orders.status');
+    Route::get('/orders/{invoice}/license', [OrderManagerController::class, 'viewLicense'])->name('orders.license');
+
+    // Promo Codes
+    Route::resource('promo-codes', PromoCodeController::class);
+
+    // Users
+    Route::resource('users', UserManagerController::class);
+
+    // Payment Settings
+    Route::get('/payment-settings', [PaymentSettingController::class, 'index'])->name('payment-settings.index');
+    Route::put('/payment-settings', [PaymentSettingController::class, 'update'])->name('payment-settings.update');
+
+    // Media Library
+    Route::get('media', [MediaController::class, 'index'])->name('media.index');
+    Route::post('media', [MediaController::class, 'store'])->name('media.store');
+    Route::get('media/find', [MediaController::class, 'find'])->name('media.find');
+    Route::delete('media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
+
+    // Media download
+    Route::get('media/{media}/download', [MediaController::class, 'download'])->name('media.download');
+});

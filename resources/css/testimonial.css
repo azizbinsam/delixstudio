@@ -1,0 +1,29 @@
+@layer components {
+    /* container column */
+    .testimonial-col {
+        @apply flex flex-col gap-3;
+    }
+
+    /* optional hover behavior */
+    .testimonial-col:hover {
+        animation-play-state: paused;
+    }
+
+    /* card utama */
+    .testimonial-card {
+        @apply border border-white/10 rounded-xl p-4 bg-white/5 flex-shrink-0;
+    }
+
+    /* optional: text style */
+    .testimonial-text {
+        @apply text-sm text-white/70 leading-relaxed;
+    }
+
+    .testimonial-name {
+        @apply text-xs font-medium text-white;
+    }
+
+    .testimonial-role {
+        @apply text-[11px] text-white/40;
+    }
+}
