@@ -185,7 +185,7 @@ class CheckoutController extends Controller
     public function applyCoursePromo(Request $request, Course $course)
     {
         $request->validate(['promo_code' => 'required|string']);
-        
+
         $promo = PromoCode::where('code', strtoupper($request->promo_code))->first();
 
         if (!$promo || !$promo->isValid()) {
@@ -354,8 +354,12 @@ class CheckoutController extends Controller
             ],
         ];
 
-        $snapToken = \Midtrans\Snap::getSnapToken($params);
-        $order->update(['midtrans_token' => $snapToken]);
+        $snapResponse = \Midtrans\Snap::createTransaction($params);
+
+        $order->update([
+            'midtrans_token' => $snapResponse->token,
+            'midtrans_url'   => $snapResponse->redirect_url,
+        ]);
 
         return redirect()->route('user.checkout.success', $order->invoice_number);
     }

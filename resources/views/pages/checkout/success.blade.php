@@ -78,6 +78,13 @@
                         Konfirmasi Pembayaran
                     </a>
                 @endif
+
+                @if ($order->status === 'pending' && $order->payment_method === 'midtrans' && $order->midtrans_token)
+                    <button id="pay-midtrans-btn" class="w-full btn-primary btn btn-lg justify-center">
+                        Selesaikan Pembayaran
+                    </button>
+                @endif
+
                 <a href="{{ route('user.orders.show', $order->invoice_number) }}" wire:navigate
                     class="w-full btn-outline btn btn-lg justify-center">
                     Lihat Detail Pesanan
@@ -89,3 +96,39 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    @if ($order->status === 'pending' && $order->payment_method === 'midtrans' && $order->midtrans_token)
+        @php $paymentSetting = \App\Models\PaymentSetting::first(); @endphp
+
+        <script
+            src="{{ $paymentSetting->midtrans_production
+                ? 'https://app.midtrans.com/snap/snap.js'
+                : 'https://app.sandbox.midtrans.com/snap/snap.js' }}"
+            data-client-key="{{ $paymentSetting->midtrans_client_key }}"></script>
+
+        <script>
+            document.getElementById('pay-midtrans-btn').onclick = function() {
+                snap.pay('{{ $order->midtrans_token }}', {
+                    onSuccess: function(result) {
+                        window.location.reload();
+                    },
+                    onPending: function(result) {
+                        window.location.reload();
+                    },
+                    onError: function(result) {
+                        alert('Pembayaran gagal, silakan coba lagi.');
+                    },
+                    onClose: function() {
+                        // user tutup popup, tidak perlu action
+                    }
+                });
+            };
+
+            // Auto-buka popup langsung saat halaman load
+            window.addEventListener('load', function() {
+                document.getElementById('pay-midtrans-btn').click();
+            });
+        </script>
+    @endif
+@endpush
