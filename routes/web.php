@@ -125,6 +125,17 @@ Route::get('/sitemap.xml', function () {
 
 /*
 |--------------------------------------------------------------------------
+| Midtrans Webhook (public — tanpa auth & tanpa CSRF)
+| Midtrans server POST ke sini, bukan browser user.
+| Keamanan dijaga oleh verifikasi signature di dalam controller.
+|--------------------------------------------------------------------------
+*/
+Route::post('/payment/midtrans/callback', [OrderController::class, 'midtransCallback'])
+    ->name('payment.midtrans.callback')
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
+/*
+|--------------------------------------------------------------------------
 | Auth Routes (Login, Register, dll - dari Breeze)
 |--------------------------------------------------------------------------
 */
@@ -170,9 +181,6 @@ Route::middleware(['auth', 'verified'])->prefix('user')->name('user.')->group(fu
     // Payment Confirmation (Manual Transfer)
     Route::get('/payment/confirm/{invoice}', [OrderController::class, 'confirmPayment'])->name('payment.confirm');
     Route::post('/payment/confirm/{invoice}', [OrderController::class, 'submitConfirmation'])->name('payment.submit');
-
-    // Midtrans Callback
-    Route::post('/payment/midtrans/callback', [OrderController::class, 'midtransCallback'])->name('payment.midtrans.callback');
 
     // Download Product File
     Route::get('/download/{orderItemId}', [OrderController::class, 'download'])->name('download');
