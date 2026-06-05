@@ -6,9 +6,12 @@ use App\Mail\WelcomeMail;
 use App\Models\PaymentSetting;
 use App\Models\PromoCode;
 use Illuminate\Auth\Events\Verified;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -55,6 +58,34 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.app', function ($view) {
             $setting = PaymentSetting::first();
             $view->with('whatsappNumber', $setting?->whatsapp_number);
+        });
+
+        // ---------------------------------------------------------------
+        // Rate limiters
+        // ---------------------------------------------------------------
+        $this->configureRateLimiters();
+    }
+
+    private function configureRateLimiters(): void
+    {
+        // Checkout: maks 5 request/menit per user.
+        // Mencegah spam order dan order pending menumpuk.
+        RateLimiter::for('checkout', function (Request $request) {
+            return Limit::perMinute(5)
+                ->by($request->user()?->id ?: $request->ip())
+                ->response(function () {
+                    return back()->with('error', 'Terlalu banyak percobaan checkout. Silakan tunggu beberapa saat.');
+                });
+        });
+
+        // Promo: maks 10 request/menit per user.
+        // Mencegah brute-force kode promo.
+        RateLimiter::for('promo', function (Request $request) {
+            return Limit::perMinute(10)
+                ->by($request->user()?->id ?: $request->ip())
+                ->response(function () {
+                    return back()->withErrors(['promo_code' => 'Terlalu banyak percobaan. Silakan tunggu beberapa saat.']);
+                });
         });
     }
 }

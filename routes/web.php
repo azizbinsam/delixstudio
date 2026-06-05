@@ -167,16 +167,25 @@ Route::middleware(['auth', 'verified'])->prefix('user')->name('user.')->group(fu
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{invoice}', [OrderController::class, 'show'])->name('orders.show');
 
-    // Checkout (Cart — untuk Produk)
+    // Checkout via Cart (Produk) — rate limited
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+    Route::post('/checkout', [CheckoutController::class, 'process'])
+        ->middleware('throttle:checkout')
+        ->name('checkout.process');
     Route::get('/checkout/success/{invoice}', [CheckoutController::class, 'success'])->name('checkout.success');
 
-    // Checkout Langsung (untuk Kelas)
+    // Checkout Langsung (Kelas) — rate limited
     Route::get('/checkout/course/{course}', [CheckoutController::class, 'courseCheckout'])->name('checkout.course');
-    Route::post('/checkout/course/{course}', [CheckoutController::class, 'processCourse'])->name('checkout.course.process');
-    Route::post('/checkout/course/{course}/promo', [CheckoutController::class, 'applyCoursePromo'])->name('checkout.course.promo');
-    Route::delete('/checkout/course/{course}/promo', [CheckoutController::class, 'removeCoursePromo'])->name('checkout.course.promo.remove');
+    Route::post('/checkout/course/{course}', [CheckoutController::class, 'processCourse'])
+        ->middleware('throttle:checkout')
+        ->name('checkout.course.process');
+
+    // Promo kelas — rate limited (cegah brute-force kode promo)
+    Route::post('/checkout/course/{course}/promo', [CheckoutController::class, 'applyCoursePromo'])
+        ->middleware('throttle:promo')
+        ->name('checkout.course.promo');
+    Route::delete('/checkout/course/{course}/promo', [CheckoutController::class, 'removeCoursePromo'])
+        ->name('checkout.course.promo.remove');
 
     // Payment Confirmation (Manual Transfer)
     Route::get('/payment/confirm/{invoice}', [OrderController::class, 'confirmPayment'])->name('payment.confirm');
@@ -189,14 +198,16 @@ Route::middleware(['auth', 'verified'])->prefix('user')->name('user.')->group(fu
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::post('/cart/promo', [CartController::class, 'applyPromo'])->name('cart.promo');
+
+    // Promo cart — rate limited (cegah brute-force kode promo)
+    Route::post('/cart/promo', [CartController::class, 'applyPromo'])
+        ->middleware('throttle:promo')
+        ->name('cart.promo');
+    Route::delete('/cart/promo', [CartController::class, 'removePromo'])->name('cart.promo.remove');
 
     // Progress tracking
     Route::post('/courses/{slug}/progress/{chapterId}', [CourseController::class, 'markProgress'])
         ->name('courses.progress');
-
-    // Hapus promo
-    Route::delete('/cart/promo', [CartController::class, 'removePromo'])->name('cart.promo.remove');
 });
 
 /*

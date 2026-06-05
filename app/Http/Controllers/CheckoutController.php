@@ -43,7 +43,7 @@ class CheckoutController extends Controller
         }
 
         $total          = max(0, $subtotal - $discount);
-        $paymentSetting = PaymentSetting::first();
+        $paymentSetting = $this->getPaymentSetting(); // FIX: pakai helper, bukan ::first() langsung
 
         return view('pages.checkout.index', compact(
             'cart',
@@ -84,9 +84,20 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
         try {
+            // FIX: increment used_count di dalam transaksi + lockForUpdate
+            // untuk cegah race condition (promo dipakai lebih dari max_usage)
+            if ($promoCodeId) {
+                $promo = PromoCode::lockForUpdate()->find($promoCodeId);
+                if (!$promo || !$promo->isValid()) {
+                    DB::rollBack();
+                    return back()->with('error', 'Kode promo sudah tidak berlaku!');
+                }
+                $promo->increment('used_count');
+            }
+
             $order = Order::create([
                 'user_id'        => Auth::id(),
-                'invoice_number' => 'INV-' . strtoupper(Str::random(10)),
+                'invoice_number' => $this->generateInvoiceNumber(), // FIX: dijamin unik
                 'promo_code_id'  => $promoCodeId,
                 'subtotal'       => $subtotal,
                 'discount'       => $discount,
@@ -125,10 +136,6 @@ class CheckoutController extends Controller
                 }
             }
 
-            if ($promoCodeId) {
-                PromoCode::find($promoCodeId)->increment('used_count');
-            }
-
             DB::commit();
             session()->forget(['cart', 'promo_code']);
 
@@ -149,22 +156,12 @@ class CheckoutController extends Controller
      */
     public function courseCheckout(Course $course)
     {
-        // Cek sudah punya kelas ini
-        $hasPurchased = Auth::user()->orders()
-            ->where('status', 'paid')
-            ->whereHas(
-                'items',
-                fn($q) => $q
-                    ->where('itemable_type', Course::class)
-                    ->where('itemable_id', $course->id)
-            )->exists();
-
-        if ($hasPurchased) {
+        if ($this->hasPurchasedCourse($course)) { // FIX: pakai helper, hindari duplikasi kode
             return redirect()->route('courses.learn', $course->slug)
                 ->with('error', 'Kamu sudah memiliki kelas ini!');
         }
 
-        $paymentSetting = PaymentSetting::first();
+        $paymentSetting = $this->getPaymentSetting(); // FIX: pakai helper
         $promoCode      = null;
         $discount       = 0;
         $total          = $course->price;
@@ -179,7 +176,7 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Apply promo di halaman checkout kelas (AJAX-friendly via Livewire atau form biasa).
+     * Apply promo di halaman checkout kelas.
      * Route: POST /user/checkout/course/{course}/promo
      */
     public function applyCoursePromo(Request $request, Course $course)
@@ -232,17 +229,7 @@ class CheckoutController extends Controller
             'payment_method' => 'required|in:manual_transfer,midtrans',
         ]);
 
-        // Double-check sudah punya
-        $hasPurchased = Auth::user()->orders()
-            ->where('status', 'paid')
-            ->whereHas(
-                'items',
-                fn($q) => $q
-                    ->where('itemable_type', Course::class)
-                    ->where('itemable_id', $course->id)
-            )->exists();
-
-        if ($hasPurchased) {
+        if ($this->hasPurchasedCourse($course)) { // FIX: pakai helper
             return redirect()->route('courses.learn', $course->slug)
                 ->with('error', 'Kamu sudah memiliki kelas ini!');
         }
@@ -264,9 +251,20 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
         try {
+            // FIX: increment used_count di dalam transaksi + lockForUpdate
+            // untuk cegah race condition (promo dipakai lebih dari max_usage)
+            if ($promoCodeId) {
+                $promo = PromoCode::lockForUpdate()->find($promoCodeId);
+                if (!$promo || !$promo->isValid()) {
+                    DB::rollBack();
+                    return back()->with('error', 'Kode promo sudah tidak berlaku!');
+                }
+                $promo->increment('used_count');
+            }
+
             $order = Order::create([
                 'user_id'        => Auth::id(),
-                'invoice_number' => 'INV-' . strtoupper(Str::random(10)),
+                'invoice_number' => $this->generateInvoiceNumber(), // FIX: dijamin unik
                 'promo_code_id'  => $promoCodeId,
                 'subtotal'       => $subtotal,
                 'discount'       => $discount,
@@ -282,10 +280,6 @@ class CheckoutController extends Controller
                 'item_name'     => $course->title,
                 'price'         => $course->price,
             ]);
-
-            if ($promoCodeId) {
-                PromoCode::find($promoCodeId)->increment('used_count');
-            }
 
             DB::commit();
             session()->forget('course_promo_' . $course->id);
@@ -335,7 +329,7 @@ class CheckoutController extends Controller
 
     private function processMidtrans(Order $order): \Illuminate\Http\RedirectResponse
     {
-        $paymentSetting = PaymentSetting::first();
+        $paymentSetting = $this->getPaymentSetting(); // FIX: pakai helper
 
         \Midtrans\Config::$serverKey    = $paymentSetting->midtrans_server_key;
         \Midtrans\Config::$isProduction = $paymentSetting->midtrans_production;
@@ -358,9 +352,52 @@ class CheckoutController extends Controller
 
         $order->update([
             'midtrans_token' => $snapResponse->token,
-            'midtrans_url'   => $snapResponse->redirect_url,
+            'midtrans_url'   => $snapResponse->redirect_url, // dari versi kamu, lebih lengkap
         ]);
 
         return redirect()->route('user.checkout.success', $order->invoice_number);
+    }
+
+    // =========================================================================
+    // PRIVATE HELPERS
+    // =========================================================================
+
+    /**
+     * Generate invoice number yang dijamin unik.
+     * Format: INV-YYYYMMDD-XXXXXXXX
+     * Contoh: INV-20250615-A3FK92BX
+     */
+    private function generateInvoiceNumber(): string
+    {
+        do {
+            $invoice = 'INV-' . now()->format('Ymd') . '-' . strtoupper(Str::random(8));
+        } while (Order::where('invoice_number', $invoice)->exists());
+
+        return $invoice;
+    }
+
+    /**
+     * Ambil PaymentSetting sekali per request (di-cache dengan once()).
+     * Menggantikan PaymentSetting::first() yang dipanggil berkali-kali.
+     */
+    private function getPaymentSetting(): PaymentSetting
+    {
+        return once(fn() => PaymentSetting::firstOrFail());
+    }
+
+    /**
+     * Cek apakah user sudah membeli kelas ini.
+     * Menggantikan query yang sama yang duplikat di courseCheckout & processCourse.
+     */
+    private function hasPurchasedCourse(Course $course): bool
+    {
+        return Auth::user()->orders()
+            ->where('status', 'paid')
+            ->whereHas(
+                'items',
+                fn($q) => $q
+                    ->where('itemable_type', Course::class)
+                    ->where('itemable_id', $course->id)
+            )->exists();
     }
 }
