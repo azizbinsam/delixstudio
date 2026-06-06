@@ -110,8 +110,6 @@ class OrderController extends Controller
 
     public function midtransCallback(Request $request)
     {
-        Log::info('Midtrans callback masuk', ['payload' => $request->all()]);
-
         $paymentSetting = PaymentSetting::first();
 
         \Midtrans\Config::$serverKey    = $paymentSetting->midtrans_server_key;
@@ -127,12 +125,6 @@ class OrderController extends Controller
             'sha512',
             $orderId . $statusCode . $grossAmount . $paymentSetting->midtrans_server_key
         );
-
-        Log::info('Signature check', [
-            'expected' => $expectedSignature,
-            'incoming' => $incomingSignature,
-            'match'    => $incomingSignature === $expectedSignature,
-        ]);
 
         if ($incomingSignature !== $expectedSignature) {
             Log::warning('Midtrans callback: invalid signature', ['order_id' => $orderId]);
