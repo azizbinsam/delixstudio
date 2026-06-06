@@ -110,6 +110,11 @@ class OrderController extends Controller
 
     public function midtransCallback(Request $request)
     {
+        // DEBUG SEMENTARA
+        Log::info('Midtrans callback masuk', [
+            'payload' => $request->all(),
+            'ip'      => $request->ip(),
+        ]);
         $paymentSetting = PaymentSetting::first();
 
         \Midtrans\Config::$serverKey    = $paymentSetting->midtrans_server_key;
