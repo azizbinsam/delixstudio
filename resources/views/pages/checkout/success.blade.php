@@ -111,10 +111,10 @@
             document.getElementById('pay-midtrans-btn').onclick = function() {
                 snap.pay('{{ $order->midtrans_token }}', {
                     onSuccess: function(result) {
-                        window.location.reload();
+                        window.location.href = '{{ route('user.orders.show', $order->invoice_number) }}';
                     },
                     onPending: function(result) {
-                        window.location.reload();
+                        window.location.href = '{{ route('user.orders.show', $order->invoice_number) }}';
                     },
                     onError: function(result) {
                         alert('Pembayaran gagal, silakan coba lagi.');
