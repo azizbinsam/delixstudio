@@ -128,6 +128,12 @@ class OrderController extends Controller
             $orderId . $statusCode . $grossAmount . $paymentSetting->midtrans_server_key
         );
 
+        Log::info('Signature check', [
+            'expected' => $expectedSignature,
+            'incoming' => $incomingSignature,
+            'match'    => $incomingSignature === $expectedSignature,
+        ]);
+
         if ($incomingSignature !== $expectedSignature) {
             Log::warning('Midtrans callback: invalid signature', ['order_id' => $orderId]);
             return response()->json(['status' => 'invalid signature'], 403);
