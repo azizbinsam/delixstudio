@@ -110,23 +110,17 @@ class OrderController extends Controller
 
     public function midtransCallback(Request $request)
     {
-        // DEBUG SEMENTARA
-        Log::info('Midtrans callback masuk', [
-            'payload' => $request->all(),
-            'ip'      => $request->ip(),
-        ]);
+        Log::info('Midtrans callback masuk', ['payload' => $request->all()]);
+
         $paymentSetting = PaymentSetting::first();
 
         \Midtrans\Config::$serverKey    = $paymentSetting->midtrans_server_key;
         \Midtrans\Config::$isProduction = $paymentSetting->midtrans_production;
 
-        // ---------------------------------------------------------------
-        // Verifikasi signature Midtrans
-        // Format: SHA512(order_id + status_code + gross_amount + server_key)
-        // ---------------------------------------------------------------
-        $orderId     = $request->input('order_id');
-        $statusCode  = $request->input('status_code');
-        $grossAmount = $request->input('gross_amount');
+        // Verifikasi signature
+        $orderId           = $request->input('order_id');
+        $statusCode        = $request->input('status_code');
+        $grossAmount       = $request->input('gross_amount');
         $incomingSignature = $request->input('signature_key');
 
         $expectedSignature = hash(
@@ -135,24 +129,16 @@ class OrderController extends Controller
         );
 
         if ($incomingSignature !== $expectedSignature) {
-            Log::warning('Midtrans callback: invalid signature', [
-                'order_id'  => $orderId,
-                'ip'        => $request->ip(),
-            ]);
-
+            Log::warning('Midtrans callback: invalid signature', ['order_id' => $orderId]);
             return response()->json(['status' => 'invalid signature'], 403);
         }
 
-        // ---------------------------------------------------------------
-        // Proses transaksi
-        // ---------------------------------------------------------------
-        $notification        = new \Midtrans\Notification();
-        $transactionStatus   = $notification->transaction_status;
-        $fraudStatus         = $notification->fraud_status ?? null;
+        // Baca langsung dari request — tidak pakai new Midtrans\Notification()
+        $transactionStatus = $request->input('transaction_status');
+        $fraudStatus       = $request->input('fraud_status');
 
         $order = Order::where('invoice_number', $orderId)->firstOrFail();
 
-        // Jangan proses ulang jika sudah paid
         if ($order->status === 'paid') {
             return response()->json(['status' => 'already paid']);
         }
@@ -160,11 +146,10 @@ class OrderController extends Controller
         if ($transactionStatus === 'settlement') {
             $order->update(['status' => 'paid', 'paid_at' => now()]);
         } elseif ($transactionStatus === 'capture') {
-            // Untuk credit card: cek fraud status
             if ($fraudStatus === 'accept') {
                 $order->update(['status' => 'paid', 'paid_at' => now()]);
             } elseif ($fraudStatus === 'challenge') {
-                $order->update(['status' => 'pending']); // tunggu review manual
+                $order->update(['status' => 'pending']);
             }
         } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
             $order->update(['status' => 'failed']);
