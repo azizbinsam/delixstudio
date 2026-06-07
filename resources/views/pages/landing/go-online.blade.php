@@ -218,7 +218,7 @@
                 @foreach ($portfolios as $item)
                     <a href="{{ $item['url'] }}" target="_blank" rel="noopener noreferrer"
                         class="anim group card overflow-hidden hover:border-white/20 transition-colors">
-                        <div class="aspect-video bg-white/5 relative overflow-hidden">
+                        <div class="aspect-[4/3] bg-white/5 relative overflow-hidden">
                             @if ($item['image'])
                                 <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}"
                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
