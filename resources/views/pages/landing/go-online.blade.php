@@ -743,9 +743,9 @@
                 </div>
 
                 {{-- CTA Button --}}
-                <a href="https://YOUR_CUSTOM_LINK_HERE" target="_blank" rel="noopener noreferrer"
+                <a href="http://lynk.id/delixstudio/xej1zn7g34wr/checkout" target="_blank" rel="noopener noreferrer"
                     class="inline-flex items-center justify-center gap-2.5 bg-white text-black font-bold text-base px-10 py-4 rounded-xl hover:bg-white/90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-white/10 mb-3">
-                    <i class="fab fa-whatsapp text-green-600 text-lg"></i>
+                    <i class="fas fa-rocket text-blue-500 text-lg"></i>
                     Ya! Saya Mau Pesan Sekarang
                 </a>
 
