@@ -263,3 +263,12 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     // Media download
     Route::get('media/{media}/download', [MediaController::class, 'download'])->name('media.download');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Landing Pages
+|--------------------------------------------------------------------------
+*/
+Route::get('/go-online', function () {
+    return view('pages.landing.go-online');
+})->name('landing.go-online');
