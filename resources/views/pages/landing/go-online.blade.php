@@ -176,37 +176,37 @@
             @php
                 $portfolios = [
                     [
-                        'image' => '/images/portfolio/portfolio-1.jpg', // ganti path gambar
+                        'image' => '/images/portfolio/portfolio-1.webp', // ganti path gambar
                         'name' => 'Albatross',
                         'meta' => 'Industri • Jakarta',
                         'url' => 'https://alti.co.id', // ganti URL website klien
                     ],
                     [
-                        'image' => '/images/portfolio/portfolio-2.jpg',
+                        'image' => '/images/portfolio/portfolio-2.webp',
                         'name' => 'KBIHU Raudhotussalafiyah',
                         'meta' => 'Industri • Banten',
                         'url' => 'https://kbihu.roudhatussalafiyah.com',
                     ],
                     [
-                        'image' => '/images/portfolio/portfolio-3.jpg',
+                        'image' => '/images/portfolio/portfolio-3.webp',
                         'name' => 'Gendhis Refleksi',
                         'meta' => 'Industri • Yogyakarta',
                         'url' => 'https://pijatpanggilanjogja24jam.com',
                     ],
                     [
-                        'image' => '/images/portfolio/portfolio-4.jpg',
+                        'image' => '/images/portfolio/portfolio-4.webp',
                         'name' => 'We Clean',
                         'meta' => 'Industri • Malaysia',
                         'url' => 'https://www.weclean.my',
                     ],
                     [
-                        'image' => '/images/portfolio/portfolio-5.jpg',
+                        'image' => '/images/portfolio/portfolio-5.webp',
                         'name' => 'Pani at 3AM',
                         'meta' => 'Industri • Banten',
                         'url' => 'https://panicat3am.com',
                     ],
                     [
-                        'image' => '/images/portfolio/portfolio-6.jpg',
+                        'image' => '/images/portfolio/portfolio-6.webp',
                         'name' => 'Manaf',
                         'meta' => 'Industri • Arab Saudi',
                         'url' => 'https://manaf.id/id',
