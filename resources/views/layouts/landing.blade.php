@@ -44,21 +44,21 @@
     {{-- SOCIAL PROOF POPUP --}}
     <div id="proof-popup" class="fixed z-50 pointer-events-none"
         style="bottom: 20px; left: 20px; width: 280px; transform: translateY(150%); opacity: 0; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;">
-        <div class="card p-3.5 flex items-center gap-3 pointer-events-auto"
-            style="box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+        <div
+            style="display:flex; align-items:center; gap:12px; padding:14px 16px; background:#111; border:1px solid rgba(255,255,255,0.1); border-radius:14px; box-shadow:0 20px 40px rgba(0,0,0,0.6);">
             <div id="proof-avatar"
                 style="width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; flex-shrink:0; background:rgba(255,255,255,0.1); color:white;">
             </div>
             <div style="flex:1; min-width:0;">
                 <p id="proof-name"
-                    style="font-size:12px; font-weight:600; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    style="font-size:12px; font-weight:600; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin:0;">
                 </p>
-                <p style="font-size:11px; color:rgba(255,255,255,0.5); margin-top:2px;">membeli <span
-                        style="color:rgba(255,255,255,0.7);">Paket Go Online</span></p>
-                <p id="proof-time" style="font-size:10px; color:rgba(255,255,255,0.3); margin-top:2px;"></p>
+                <p style="font-size:11px; color:rgba(255,255,255,0.5); margin:3px 0 0 0;">membeli <span
+                        style="color:rgba(255,255,255,0.75);">Paket Go Online</span></p>
+                <p id="proof-time" style="font-size:10px; color:rgba(255,255,255,0.3); margin:2px 0 0 0;"></p>
             </div>
             <button onclick="hideProof()"
-                style="color:rgba(255,255,255,0.2); flex-shrink:0; background:none; border:none; cursor:pointer; font-size:12px;">
+                style="color:rgba(255,255,255,0.25); flex-shrink:0; background:none; border:none; cursor:pointer; font-size:12px; padding:4px; line-height:1;">
                 <i class="fas fa-times"></i>
             </button>
         </div>
