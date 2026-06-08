@@ -10,7 +10,7 @@
     {{-- ============================================================ --}}
     {{-- 1. HERO SECTION                                               --}}
     {{-- ============================================================ --}}
-    <section class="relative min-h-screen flex items-center justify-center overflow-hidden px-5">
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden px-5 pt-2">
 
         {{-- Background grid + glow --}}
         <div class="absolute inset-0 pointer-events-none">

@@ -37,7 +37,7 @@
         </div>
     </header>
 
-    <main class="pt-4">
+    <main>
         @yield('content')
     </main>
 
