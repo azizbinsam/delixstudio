@@ -1009,13 +1009,30 @@
             },
         ];
 
-        const avatarColors = [
-            'bg-blue-500/30 text-blue-300',
-            'bg-purple-500/30 text-purple-300',
-            'bg-pink-500/30 text-pink-300',
-            'bg-green-500/30 text-green-300',
-            'bg-yellow-500/30 text-yellow-300',
-            'bg-orange-500/30 text-orange-300',
+        const avatarColors = [{
+                bg: 'rgba(59,130,246,0.3)',
+                color: '#93c5fd'
+            },
+            {
+                bg: 'rgba(168,85,247,0.3)',
+                color: '#d8b4fe'
+            },
+            {
+                bg: 'rgba(236,72,153,0.3)',
+                color: '#f9a8d4'
+            },
+            {
+                bg: 'rgba(34,197,94,0.3)',
+                color: '#86efac'
+            },
+            {
+                bg: 'rgba(234,179,8,0.3)',
+                color: '#fde047'
+            },
+            {
+                bg: 'rgba(249,115,22,0.3)',
+                color: '#fdba74'
+            },
         ];
 
         let proofIndex = Math.floor(Math.random() * proofData.length);
@@ -1032,8 +1049,9 @@
             const time = document.getElementById('proof-time');
             const color = avatarColors[Math.floor(Math.random() * avatarColors.length)];
 
-            avatar.className =
-                `w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${color}`;
+            avatar.className = 'w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0';
+            avatar.style.backgroundColor = color.bg;
+            avatar.style.color = color.color;
             avatar.textContent = data.name.charAt(0);
             name.textContent = `${data.name} dari ${data.city}`;
 
