@@ -850,25 +850,24 @@
     </footer>
 
     {{-- SOCIAL PROOF POPUP --}}
-    <div id="proof-popup" class="fixed bottom-5 left-5 z-50 max-w-[280px] w-full pointer-events-none"
-        style="transform: translateY(120%); opacity: 0; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;">
+    <div id="proof-popup" class="fixed bottom-5 left-5 z-50 pointer-events-none"
+        style="width: 280px; transform: translateY(120%); opacity: 0; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;"
         <div class="card p-3.5 flex items-center gap-3 pointer-events-auto"
-            style="box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
-            <div id="proof-avatar"
-                class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-white/10 text-white">
-            </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-xs text-white font-semibold truncate" id="proof-name"></p>
-                <p class="text-[11px] text-white/50 leading-snug mt-0.5">
-                    membeli <span class="text-white/70">Paket Go Online</span>
-                </p>
-                <p class="text-[10px] text-white/30 mt-0.5" id="proof-time"></p>
-            </div>
-            <button onclick="hideProof()"
-                class="text-white/20 hover:text-white/50 transition-colors flex-shrink-0 text-xs">
-                <i class="fas fa-times"></i>
-            </button>
+        style="box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+        <div id="proof-avatar"
+            class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-white/10 text-white">
         </div>
+        <div class="flex-1 min-w-0">
+            <p class="text-xs text-white font-semibold truncate" id="proof-name"></p>
+            <p class="text-[11px] text-white/50 leading-snug mt-0.5">
+                membeli <span class="text-white/70">Paket Go Online</span>
+            </p>
+            <p class="text-[10px] text-white/30 mt-0.5" id="proof-time"></p>
+        </div>
+        <button onclick="hideProof()" class="text-white/20 hover:text-white/50 transition-colors flex-shrink-0 text-xs">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
     </div>
 
 @endsection
