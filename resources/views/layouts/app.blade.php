@@ -8,6 +8,20 @@
     {!! SEOMeta::generate() !!}
     {!! OpenGraph::generate() !!}
     {!! TwitterCard::generate() !!}
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DMJB823BE3"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', 'G-DMJB823BE3');
+    </script>
+
     <title>{{ config('app.name', 'Delix Studio Store') }} - @yield('title', 'Home')</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 

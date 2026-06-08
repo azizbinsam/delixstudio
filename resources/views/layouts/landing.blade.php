@@ -9,6 +9,19 @@
     <meta name="description" content="@yield('meta_description', 'Paket jasa pembuatan website profesional mulai Rp 800.000 – desain premium, domain, hosting, dan support langsung.')">
     <link rel="icon" type="image/png" href="/favicon.png">
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DMJB823BE3"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', 'G-DMJB823BE3');
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap"
