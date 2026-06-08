@@ -849,6 +849,27 @@
         </div>
     </footer>
 
+    {{-- SOCIAL PROOF POPUP --}}
+    <div id="proof-popup" class="fixed bottom-5 left-5 z-50 max-w-[280px] w-full pointer-events-none"
+        style="transform: translateY(120%); opacity: 0; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;">
+        <div class="card p-3.5 flex items-center gap-3 pointer-events-auto shadow-2xl shadow-black/50">
+            <div id="proof-avatar"
+                class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 bg-white/10 text-white">
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-xs text-white font-semibold truncate" id="proof-name"></p>
+                <p class="text-[11px] text-white/50 leading-snug mt-0.5">
+                    membeli <span class="text-white/70">Paket Go Online</span>
+                </p>
+                <p class="text-[10px] text-white/30 mt-0.5" id="proof-time"></p>
+            </div>
+            <button onclick="hideProof()"
+                class="text-white/20 hover:text-white/50 transition-colors flex-shrink-0 text-xs">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
 @endsection
 
 @push('scripts')
@@ -909,5 +930,134 @@
                 }
             }
         }
+
+        // Social Proof Popup
+        const proofData = [{
+                name: 'Andi S.',
+                city: 'Jakarta',
+                menit: 2
+            },
+            {
+                name: 'Rina M.',
+                city: 'Bandung',
+                menit: 7
+            },
+            {
+                name: 'Fajar N.',
+                city: 'Surabaya',
+                menit: 15
+            },
+            {
+                name: 'Dewi R.',
+                city: 'Semarang',
+                menit: 23
+            },
+            {
+                name: 'Hendra W.',
+                city: 'Medan',
+                menit: 34
+            },
+            {
+                name: 'Siti A.',
+                city: 'Yogyakarta',
+                menit: 45
+            },
+            {
+                name: 'Budi P.',
+                city: 'Makassar',
+                menit: 58
+            },
+            {
+                name: 'Lina K.',
+                city: 'Palembang',
+                menit: 71
+            },
+            {
+                name: 'Rizky F.',
+                city: 'Depok',
+                menit: 89
+            },
+            {
+                name: 'Nurul H.',
+                city: 'Bogor',
+                menit: 102
+            },
+            {
+                name: 'Dimas A.',
+                city: 'Bekasi',
+                menit: 3
+            },
+            {
+                name: 'Mega S.',
+                city: 'Tangerang',
+                menit: 19
+            },
+            {
+                name: 'Agus T.',
+                city: 'Balikpapan',
+                menit: 41
+            },
+            {
+                name: 'Yuni P.',
+                city: 'Malang',
+                menit: 66
+            },
+            {
+                name: 'Rahmat D.',
+                city: 'Pekanbaru',
+                menit: 88
+            },
+        ];
+
+        const avatarColors = [
+            'bg-blue-500/30 text-blue-300',
+            'bg-purple-500/30 text-purple-300',
+            'bg-pink-500/30 text-pink-300',
+            'bg-green-500/30 text-green-300',
+            'bg-yellow-500/30 text-yellow-300',
+            'bg-orange-500/30 text-orange-300',
+        ];
+
+        let proofIndex = Math.floor(Math.random() * proofData.length);
+        let proofTimeout = null;
+        let proofHideTimeout = null;
+
+        function showProof() {
+            const data = proofData[proofIndex % proofData.length];
+            proofIndex++;
+
+            const popup = document.getElementById('proof-popup');
+            const avatar = document.getElementById('proof-avatar');
+            const name = document.getElementById('proof-name');
+            const time = document.getElementById('proof-time');
+            const color = avatarColors[Math.floor(Math.random() * avatarColors.length)];
+
+            avatar.className =
+                `w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${color}`;
+            avatar.textContent = data.name.charAt(0);
+            name.textContent = `${data.name} dari ${data.city}`;
+
+            const menit = data.menit;
+            time.textContent = menit < 60 ?
+                `${menit} menit yang lalu` :
+                `${Math.floor(menit / 60)} jam yang lalu`;
+
+            popup.style.transform = 'translateY(0)';
+            popup.style.opacity = '1';
+
+            clearTimeout(proofHideTimeout);
+            proofHideTimeout = setTimeout(() => hideProof(), 5000);
+
+            clearTimeout(proofTimeout);
+            proofTimeout = setTimeout(() => showProof(), 12000);
+        }
+
+        function hideProof() {
+            const popup = document.getElementById('proof-popup');
+            popup.style.transform = 'translateY(120%)';
+            popup.style.opacity = '0';
+        }
+
+        setTimeout(() => showProof(), 4000);
     </script>
 @endpush
