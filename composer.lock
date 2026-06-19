@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cf0d343968cdc7ac79b669fcc9e7c303",
+    "content-hash": "a7947987a134f6a42a87ba25ac4fae23",
     "packages": [
         {
             "name": "artesaos/seotools",
@@ -578,6 +578,47 @@
                 }
             ],
             "time": "2025-03-06T22:45:56+00:00"
+        },
+        {
+            "name": "fersaku/fersaku-php",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/dasepmoch/SDK-Fersaku-php.git",
+                "reference": "d6433e3083c858f3f51563f3061c2ce9818bc8db"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/dasepmoch/SDK-Fersaku-php/zipball/d6433e3083c858f3f51563f3061c2ce9818bc8db",
+                "reference": "d6433e3083c858f3f51563f3061c2ce9818bc8db",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Fersaku\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fersaku",
+                    "email": "support@fersaku.com"
+                }
+            ],
+            "description": "Official Fersaku QRIS Payment Gateway SDK for PHP",
+            "homepage": "https://fersaku.com/docs",
+            "support": {
+                "source": "https://github.com/dasepmoch/SDK-Fersaku-php/tree/main",
+                "issues": "https://github.com/dasepmoch/SDK-Fersaku-php/issues"
+            },
+            "time": "2026-05-12T17:15:31+00:00"
         },
         {
             "name": "firebase/php-jwt",
@@ -9934,7 +9975,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "fersaku/fersaku-php": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

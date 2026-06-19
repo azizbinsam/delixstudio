@@ -4,9 +4,16 @@
     "description": "The skeleton application for the Laravel framework.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/dasepmoch/SDK-Fersaku-php"
+        }
+    ],
     "require": {
         "php": "^8.2",
         "artesaos/seotools": "^1.4",
+        "fersaku/fersaku-php": "dev-main",
         "intervention/image": "^3.0",
         "laravel/framework": "^11.0",
         "laravel/socialite": "^5.27",

@@ -39,6 +39,22 @@
                 <x-form.toggle name="midtrans_production" label="Mode Production" hint="Matikan untuk mode sandbox/testing"
                     :checked="$setting->midtrans_production" />
             </div>
+            {{-- Fersaku --}}
+            <div class="card p-5 space-y-4">
+                <x-form.toggle name="fersaku_active" label="Fersaku (QRIS)" hint="Payment gateway QRIS via Fersaku"
+                    :checked="$setting->fersaku_active" />
+                <x-form.input name="fersaku_api_key" label="API Key" :value="$setting->fersaku_api_key"
+                    placeholder="sk_live_xxxx atau sk_test_xxxx" />
+                <x-form.input name="fersaku_webhook_secret" label="Webhook Secret" :value="$setting->fersaku_webhook_secret"
+                    placeholder="whsec_xxxxxxxxxxxx" />
+                <x-form.toggle name="fersaku_sandbox" label="Mode Sandbox" hint="Aktifkan saat masih testing"
+                    :checked="$setting->fersaku_sandbox" />
+
+                <div class="text-xs text-gray-400 pt-1">
+                    Webhook URL: <code
+                        class="bg-gray-100 dark:bg-gray-800 px-1 rounded">{{ route('payment.fersaku.callback') }}</code>
+                </div>
+            </div>
         </div>
 
         <div class="mt-4 flex justify-end">

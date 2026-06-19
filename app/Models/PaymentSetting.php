@@ -19,6 +19,10 @@ class PaymentSetting extends Model
         'bank_account_number',
         'bank_account_name',
         'whatsapp_number',
+        'fersaku_active',
+        'fersaku_api_key',
+        'fersaku_webhook_secret',
+        'fersaku_sandbox',
     ];
 
     protected function casts(): array
@@ -27,6 +31,8 @@ class PaymentSetting extends Model
             'midtrans_active' => 'boolean',
             'midtrans_production' => 'boolean',
             'manual_transfer_active' => 'boolean',
+            'fersaku_active'        => 'boolean',
+            'fersaku_sandbox'       => 'boolean',
         ];
     }
 }

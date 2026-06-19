@@ -122,6 +122,17 @@
                                         </div>
                                     </label>
                                 @endif
+
+                                {{-- Fersaku --}}
+                                @if ($paymentSetting->fersaku_active)
+                                    <label
+                                        class="flex items-start gap-3 p-3 border border-white/10 rounded-lg cursor-pointer hover:border-white/20 transition-colors has-[:checked]:border-white/40 has-[:checked]:bg-white/5">
+                                        <input type="radio" name="payment_method" value="fersaku"
+                                            {{ old('payment_method') === 'fersaku' ? 'checked' : '' }} />
+                                        <span>QRIS via Fersaku</span>
+                                        <span class="text-xs text-gray-400">Bayar dengan QRIS dari e-wallet manapun</span>
+                                    </label>
+                                @endif
                             </div>
                         </div>
                     </div>

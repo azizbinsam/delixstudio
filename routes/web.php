@@ -134,6 +134,10 @@ Route::post('/payment/midtrans/callback', [OrderController::class, 'midtransCall
     ->name('payment.midtrans.callback')
     ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
 
+Route::post('/payment/fersaku/callback', [OrderController::class, 'fersakuCallback'])
+    ->name('payment.fersaku.callback')
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class]);
+
 /*
 |--------------------------------------------------------------------------
 | Auth Routes (Login, Register, dll - dari Breeze)

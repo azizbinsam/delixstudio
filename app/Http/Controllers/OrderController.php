@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderPaidMail;
 use App\Models\Order;
 use App\Models\OrderItem;
-use App\Models\ProductFile;
 use App\Models\PaymentSetting;
+use App\Models\ProductFile;
+use App\Services\FersakuService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
@@ -154,6 +157,51 @@ class OrderController extends Controller
         }
 
         return response()->json(['status' => 'ok']);
+    }
+
+    public function fersakuCallback(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $paymentSetting = PaymentSetting::first();
+
+        // WAJIB raw body, bukan $request->all()
+        $rawBody   = $request->getContent();
+        $signature = $request->header('X-Webhook-Signature');
+
+        if (! FersakuService::verifySignature($rawBody, $signature, $paymentSetting->fersaku_webhook_secret ?? '')) {
+            Log::warning('Fersaku webhook: invalid signature');
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        $data = json_decode($rawBody, true);
+
+        $mode = $request->header('X-Fersaku-Mode');
+        if ($mode === 'sandbox' && ! $paymentSetting->fersaku_sandbox) {
+            Log::info('Fersaku webhook: sandbox event ignored (live mode active)');
+            return response()->json(['message' => 'Sandbox ignored']);
+        }
+
+        $event     = $data['event'] ?? null;
+        $paymentId = $data['payment_id'] ?? null;
+
+        $order = Order::where('fersaku_payment_id', $paymentId)->first();
+
+        if (! $order) {
+            Log::warning('Fersaku webhook: order not found', ['payment_id' => $paymentId]);
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        if ($order->status === 'paid') {
+            return response()->json(['message' => 'Already paid']);
+        }
+
+        if ($event === 'payment.paid') {
+            $order->update(['status' => 'paid', 'paid_at' => now()]);
+            Mail::to($order->user->email)->send(new OrderPaidMail($order));
+        } elseif (in_array($event, ['payment.expired', 'payment.failed', 'payment.cancelled'])) {
+            $order->update(['status' => 'failed']);
+        }
+
+        return response()->json(['message' => 'OK']);
     }
 
     public function download($orderItemId)

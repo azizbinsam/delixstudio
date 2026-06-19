@@ -23,6 +23,8 @@ class PaymentSettingController extends Controller
             'bank_account_number' => 'nullable|string|max:50',
             'bank_account_name' => 'nullable|string|max:100',
             'whatsapp_number' => 'nullable|string|max:20',
+            'fersaku_api_key'        => 'nullable|string',
+            'fersaku_webhook_secret' => 'nullable|string',
         ]);
 
         $setting = PaymentSetting::first();
@@ -37,6 +39,10 @@ class PaymentSettingController extends Controller
             'bank_account_number' => $request->bank_account_number,
             'bank_account_name' => $request->bank_account_name,
             'whatsapp_number' => $request->whatsapp_number,
+            'fersaku_active'         => $request->boolean('fersaku_active'),
+            'fersaku_api_key'        => $request->fersaku_api_key,
+            'fersaku_webhook_secret' => $request->fersaku_webhook_secret,
+            'fersaku_sandbox'        => $request->boolean('fersaku_sandbox'),
         ]);
 
         return back()->with('success', 'Pengaturan pembayaran berhasil diperbarui!');

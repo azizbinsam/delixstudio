@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use App\Services\FersakuService;
 
 class CheckoutController extends Controller
 {
@@ -58,7 +59,7 @@ class CheckoutController extends Controller
     public function process(Request $request)
     {
         $request->validate([
-            'payment_method' => 'required|in:manual_transfer,midtrans',
+            'payment_method' => 'required|in:manual_transfer,midtrans,fersaku',
         ]);
 
         $cart = session()->get('cart', []);
@@ -226,7 +227,7 @@ class CheckoutController extends Controller
     public function processCourse(Request $request, Course $course)
     {
         $request->validate([
-            'payment_method' => 'required|in:manual_transfer,midtrans',
+            'payment_method' => 'required|in:manual_transfer,midtrans,fersaku',
         ]);
 
         if ($this->hasPurchasedCourse($course)) { // FIX: pakai helper
@@ -309,7 +310,6 @@ class CheckoutController extends Controller
      */
     private function finalizeOrder(Order $order, string $paymentMethod): \Illuminate\Http\RedirectResponse
     {
-        // Jika total 0 (promo 100%), langsung paid
         if ($order->total == 0) {
             $order->update(['status' => 'paid', 'paid_at' => now()]);
             Mail::to(Auth::user()->email)->send(new OrderPaidMail($order));
@@ -322,6 +322,10 @@ class CheckoutController extends Controller
 
         if ($paymentMethod === 'midtrans') {
             return $this->processMidtrans($order);
+        }
+
+        if ($paymentMethod === 'fersaku') {
+            return $this->processFersaku($order);
         }
 
         return redirect()->route('user.checkout.success', $order->invoice_number);
@@ -356,6 +360,32 @@ class CheckoutController extends Controller
         ]);
 
         return redirect()->route('user.checkout.success', $order->invoice_number);
+    }
+
+    private function processFersaku(Order $order): \Illuminate\Http\RedirectResponse
+    {
+        $fersaku = new FersakuService();
+
+        $payment = $fersaku->createPayment([
+            'amount'           => (int) $order->total,
+            'customer_name'    => Auth::user()->name,
+            'customer_email'   => Auth::user()->email,
+            'description'      => 'Pembayaran ' . $order->invoice_number . ' - Delix Studio',
+            'external_id'      => $order->invoice_number,
+            'expired_minutes'  => 60,
+            'finish_url'       => route('user.checkout.success', $order->invoice_number),
+        ]);
+
+        if (! $payment) {
+            return back()->with('error', 'Gagal membuat pembayaran Fersaku. Silakan coba lagi atau gunakan metode lain.');
+        }
+
+        $order->update([
+            'fersaku_payment_id' => $payment['id'],
+            'fersaku_order_id'   => $payment['order_id'],
+        ]);
+
+        return redirect()->away($payment['checkout_url']);
     }
 
     // =========================================================================

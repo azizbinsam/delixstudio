@@ -23,6 +23,8 @@ class Order extends Model
         'midtrans_token',
         'midtrans_url',
         'paid_at',
+        'fersaku_payment_id',
+        'fersaku_order_id',
     ];
 
     protected function casts(): array
