@@ -43,6 +43,20 @@
                                 Konfirmasi Bayar
                             </a>
                         @endif
+
+                        @if ($order->status === 'pending' && $order->payment_method === 'fersaku')
+                            <a href="{{ route('user.checkout.retry-fersaku', $order->invoice_number) }}"
+                                class="btn-primary btn">
+                                Lanjutkan Pembayaran
+                            </a>
+                        @endif
+
+                        @if ($order->status === 'pending' && $order->payment_method === 'midtrans' && $order->midtrans_token)
+                            <a href="{{ route('user.checkout.success', $order->invoice_number) }}" wire:navigate
+                                class="btn-primary btn">
+                                Lanjutkan Pembayaran
+                            </a>
+                        @endif
                     </div>
                 </div>
 

@@ -68,4 +68,23 @@ class FersakuService
 
         return hash_equals($expected, $signature);
     }
+
+    // app/Services/FersakuService.php
+// Tambahkan method ini di dalam class
+
+public function getCheckoutUrl(string $paymentId): ?string
+{
+    $payment = $this->getPayment($paymentId);
+
+    if (! $payment) {
+        return null;
+    }
+
+    // Kalau sudah expired/paid/failed, tidak ada checkout_url yang valid
+    if (! in_array($payment['status'], ['pending'])) {
+        return null;
+    }
+
+    return $payment['checkout_url'] ?? null;
+}
 }

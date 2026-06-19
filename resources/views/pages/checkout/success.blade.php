@@ -85,6 +85,13 @@
                     </button>
                 @endif
 
+                @if ($order->status === 'pending' && $order->payment_method === 'fersaku')
+                    <a href="{{ route('user.checkout.retry-fersaku', $order->invoice_number) }}"
+                        class="w-full btn-primary btn btn-lg justify-center">
+                        Lanjutkan Pembayaran
+                    </a>
+                @endif
+
                 <a href="{{ route('user.orders.show', $order->invoice_number) }}" wire:navigate
                     class="w-full btn-outline btn btn-lg justify-center">
                     Lihat Detail Pesanan

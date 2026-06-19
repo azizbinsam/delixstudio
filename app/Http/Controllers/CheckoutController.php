@@ -388,6 +388,32 @@ class CheckoutController extends Controller
         return redirect()->away($payment['checkout_url']);
     }
 
+    public function retryFersaku(Order $order): \Illuminate\Http\RedirectResponse
+    {
+        // Pastikan order ini milik user yang login
+        if ($order->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        if ($order->status !== 'pending' || $order->payment_method !== 'fersaku') {
+            return redirect()->route('user.checkout.success', $order->invoice_number);
+        }
+
+        if (! $order->fersaku_payment_id) {
+            return back()->with('error', 'Data pembayaran tidak ditemukan. Silakan hubungi admin.');
+        }
+
+        $fersaku = new FersakuService();
+        $checkoutUrl = $fersaku->getCheckoutUrl($order->fersaku_payment_id);
+
+        if (! $checkoutUrl) {
+            // Payment lama sudah expired di sisi Fersaku — buat payment baru
+            return $this->processFersaku($order);
+        }
+
+        return redirect()->away($checkoutUrl);
+    }
+
     // =========================================================================
     // PRIVATE HELPERS
     // =========================================================================
