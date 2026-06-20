@@ -185,7 +185,7 @@ Route::middleware(['auth', 'verified'])->prefix('user')->name('user.')->group(fu
         ->name('checkout.course.process');
 
     Route::get('/checkout/{order:invoice_number}/pay-fersaku', [CheckoutController::class, 'retryFersaku'])
-        ->name('user.checkout.retry-fersaku');
+        ->name('checkout.retry-fersaku');
 
     // Promo kelas — rate limited (cegah brute-force kode promo)
     Route::post('/checkout/course/{course}/promo', [CheckoutController::class, 'applyCoursePromo'])
