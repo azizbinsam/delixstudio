@@ -43,6 +43,20 @@
                                                 Bayar
                                             </a>
                                         @endif
+
+                                        @if ($order->status === 'pending' && $order->payment_method === 'fersaku')
+                                            <a href="{{ route('user.checkout.retry-fersaku', $order->invoice_number) }}"
+                                                class="btn-primary btn-sm btn">
+                                                Bayar
+                                            </a>
+                                        @endif
+
+                                        @if ($order->status === 'pending' && $order->payment_method === 'midtrans' && $order->midtrans_token)
+                                            <a href="{{ route('user.checkout.success', $order->invoice_number) }}"
+                                                wire:navigate class="btn-primary btn-sm btn">
+                                                Bayar
+                                            </a>
+                                        @endif
                                         <a href="{{ route('user.orders.show', $order->invoice_number) }}" wire:navigate
                                             class="btn-outline btn-sm btn">
                                             Detail
