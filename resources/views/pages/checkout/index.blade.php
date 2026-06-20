@@ -89,14 +89,25 @@
                             <div class="card-header">
                                 <p class="text-xs font-medium text-white/50">Metode Pembayaran</p>
                             </div>
-                            <div class="card-body space-y-3">
+                            @php
+                                $activeMethods = collect([
+                                    'manual_transfer' => $paymentSetting->manual_transfer_active,
+                                    'midtrans' => $paymentSetting->midtrans_active,
+                                    'fersaku' => $paymentSetting->fersaku_active,
+                                ])
+                                    ->filter()
+                                    ->keys();
 
-                                {{-- Manual Transfer --}}
+                                $defaultMethod = old('payment_method', $activeMethods->first());
+                            @endphp
+
+                            <div class="card-body space-y-3">
                                 @if ($paymentSetting->manual_transfer_active)
                                     <label
                                         class="flex items-start gap-3 p-3 border border-white/10 rounded-lg cursor-pointer hover:border-white/20 transition-colors has-[:checked]:border-white/40 has-[:checked]:bg-white/5">
                                         <input type="radio" name="payment_method" value="manual_transfer"
-                                            class="mt-0.5 accent-white" checked>
+                                            class="mt-0.5 accent-white"
+                                            {{ $defaultMethod === 'manual_transfer' ? 'checked' : '' }}>
                                         <div>
                                             <p class="text-sm font-medium text-white">Transfer Bank Manual</p>
                                             <p class="text-xs text-white/30 mt-0.5 leading-relaxed">
@@ -108,12 +119,12 @@
                                     </label>
                                 @endif
 
-                                {{-- Midtrans --}}
                                 @if ($paymentSetting->midtrans_active)
                                     <label
                                         class="flex items-start gap-3 p-3 border border-white/10 rounded-lg cursor-pointer hover:border-white/20 transition-colors has-[:checked]:border-white/40 has-[:checked]:bg-white/5">
                                         <input type="radio" name="payment_method" value="midtrans"
-                                            class="mt-0.5 accent-white">
+                                            class="mt-0.5 accent-white"
+                                            {{ $defaultMethod === 'midtrans' ? 'checked' : '' }}>
                                         <div>
                                             <p class="text-sm font-medium text-white">Midtrans</p>
                                             <p class="text-xs text-white/30 mt-0.5">
@@ -128,7 +139,8 @@
                                     <label
                                         class="flex items-start gap-3 p-3 border border-white/10 rounded-lg cursor-pointer hover:border-white/20 transition-colors has-[:checked]:border-white/40 has-[:checked]:bg-white/5">
                                         <input type="radio" name="payment_method" value="fersaku"
-                                            class="mt-0.5 accent-white">
+                                            class="mt-0.5 accent-white"
+                                            {{ $defaultMethod === 'fersaku' ? 'checked' : '' }}>
                                         <div>
                                             <p class="text-sm font-medium text-white">QRIS via Fersaku</p>
                                             <p class="text-xs text-white/30 mt-0.5">
