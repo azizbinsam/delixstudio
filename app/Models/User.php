@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Notifications\ResetPasswordNotification;
 use App\Notifications\VerifyEmailNotification;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -72,7 +71,6 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    // app/Models/User.php
     public function isAdmin(): bool
     {
         return (bool) $this->is_admin;

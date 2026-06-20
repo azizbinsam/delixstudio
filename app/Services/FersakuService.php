@@ -69,9 +69,6 @@ class FersakuService
         return hash_equals($expected, $signature);
     }
 
-    // app/Services/FersakuService.php
-// Tambahkan method ini di dalam class
-
 public function getCheckoutUrl(string $paymentId): ?string
 {
     $payment = $this->getPayment($paymentId);
