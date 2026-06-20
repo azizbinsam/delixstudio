@@ -34,6 +34,7 @@ class Order extends Model
             'subtotal' => 'decimal:2',
             'discount' => 'decimal:2',
             'total' => 'decimal:2',
+            'user_id' => 'integer',
         ];
     }
 
