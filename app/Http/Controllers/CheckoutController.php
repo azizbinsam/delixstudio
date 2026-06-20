@@ -44,7 +44,7 @@ class CheckoutController extends Controller
         }
 
         $total          = max(0, $subtotal - $discount);
-        $paymentSetting = $this->getPaymentSetting(); // FIX: pakai helper, bukan ::first() langsung
+        $paymentSetting = $this->getPaymentSetting();
 
         return view('pages.checkout.index', compact(
             'cart',
@@ -85,8 +85,7 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
         try {
-            // FIX: increment used_count di dalam transaksi + lockForUpdate
-            // untuk cegah race condition (promo dipakai lebih dari max_usage)
+            /// Lock baris promo agar used_count tidak race condition saat banyak user checkout bersamaan
             if ($promoCodeId) {
                 $promo = PromoCode::lockForUpdate()->find($promoCodeId);
                 if (!$promo || !$promo->isValid()) {
@@ -98,7 +97,7 @@ class CheckoutController extends Controller
 
             $order = Order::create([
                 'user_id'        => Auth::id(),
-                'invoice_number' => $this->generateInvoiceNumber(), // FIX: dijamin unik
+                'invoice_number' => $this->generateInvoiceNumber(),
                 'promo_code_id'  => $promoCodeId,
                 'subtotal'       => $subtotal,
                 'discount'       => $discount,
@@ -157,12 +156,12 @@ class CheckoutController extends Controller
      */
     public function courseCheckout(Course $course)
     {
-        if ($this->hasPurchasedCourse($course)) { // FIX: pakai helper, hindari duplikasi kode
+        if ($this->hasPurchasedCourse($course)) {
             return redirect()->route('courses.learn', $course->slug)
                 ->with('error', 'Kamu sudah memiliki kelas ini!');
         }
 
-        $paymentSetting = $this->getPaymentSetting(); // FIX: pakai helper
+        $paymentSetting = $this->getPaymentSetting();
         $promoCode      = null;
         $discount       = 0;
         $total          = $course->price;
@@ -230,7 +229,7 @@ class CheckoutController extends Controller
             'payment_method' => 'required|in:manual_transfer,midtrans,fersaku',
         ]);
 
-        if ($this->hasPurchasedCourse($course)) { // FIX: pakai helper
+        if ($this->hasPurchasedCourse($course)) {
             return redirect()->route('courses.learn', $course->slug)
                 ->with('error', 'Kamu sudah memiliki kelas ini!');
         }
@@ -252,8 +251,7 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
         try {
-            // FIX: increment used_count di dalam transaksi + lockForUpdate
-            // untuk cegah race condition (promo dipakai lebih dari max_usage)
+            // Lock baris promo agar used_count tidak race condition saat banyak user checkout bersamaan
             if ($promoCodeId) {
                 $promo = PromoCode::lockForUpdate()->find($promoCodeId);
                 if (!$promo || !$promo->isValid()) {
@@ -265,7 +263,7 @@ class CheckoutController extends Controller
 
             $order = Order::create([
                 'user_id'        => Auth::id(),
-                'invoice_number' => $this->generateInvoiceNumber(), // FIX: dijamin unik
+                'invoice_number' => $this->generateInvoiceNumber(),
                 'promo_code_id'  => $promoCodeId,
                 'subtotal'       => $subtotal,
                 'discount'       => $discount,
@@ -333,7 +331,7 @@ class CheckoutController extends Controller
 
     private function processMidtrans(Order $order): \Illuminate\Http\RedirectResponse
     {
-        $paymentSetting = $this->getPaymentSetting(); // FIX: pakai helper
+        $paymentSetting = $this->getPaymentSetting();
 
         \Midtrans\Config::$serverKey    = $paymentSetting->midtrans_server_key;
         \Midtrans\Config::$isProduction = $paymentSetting->midtrans_production;
@@ -356,7 +354,7 @@ class CheckoutController extends Controller
 
         $order->update([
             'midtrans_token' => $snapResponse->token,
-            'midtrans_url'   => $snapResponse->redirect_url, // dari versi kamu, lebih lengkap
+            'midtrans_url'   => $snapResponse->redirect_url,
         ]);
 
         return redirect()->route('user.checkout.success', $order->invoice_number);
